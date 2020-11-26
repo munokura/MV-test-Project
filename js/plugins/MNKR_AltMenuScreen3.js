@@ -1,5 +1,5 @@
 //=============================================================================
-// MNKR_AltMenuScreen3.js (ver0.0.1)
+// MNKR_AltMenuScreen3.js (ver0.0.2)
 //=============================================================================
 
 /*
@@ -177,7 +177,7 @@
  * @noteRequire 1
  * @noteDir img/pictures/
  * @noteType file
- * @noteData actor
+ * @noteData actors
  */
 
 (function () {
@@ -540,6 +540,20 @@
             var dy = (bitmap.height > rect.height) ? rect.y :
                 rect.y + (rect.height - bitmap.height) / 2;
             this.contents.blt(bitmap, sx - offX, sy - offY, w, h, dx, dy);
+            console.log('bitmap');
+            console.log(bitmap);
+            console.log('sx');
+            console.log(sx - offX);
+            console.log('sy');
+            console.log(sy - offY);
+            console.log('w');
+            console.log(w);
+            console.log('h');
+            console.log(h);
+            console.log('dx');
+            console.log(dx);
+            console.log('dy');
+            console.log(dy);
         } else { // when bitmap is not set, do the original process.
             this.drawActorFace(actor, rect.x, rect.y + lineHeight * 2.5, w, h);
         }
