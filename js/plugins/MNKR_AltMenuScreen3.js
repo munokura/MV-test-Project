@@ -1,11 +1,10 @@
 //=============================================================================
-// MNKR_AltMenuScreen3.js (ver0.0.3)
+// MNKR_AltMenuScreen3.js (ver0.0.4)
 //=============================================================================
 
 /*
  * ▼ムノクラによる変更点
  * 1.トリアコンタン氏の下記修正を取り入れました。
- *   1.0.1 2016/07/22
  *   リザーブメンバーの立ち絵が初回表示時に正しく表示されない問題の修正
  * 
  * 2.ウィンドウ枠を表示するか選択肢の追加
@@ -14,6 +13,7 @@
  *   立ち絵の表示位置指定機能を追加
  *   <stand_picture:ファイル名>で指定したアクター表示にのみ反映されます。
  *   通常の顔画像には反映されません。
+ * 
  * 4.場所ウィンドウの幅計算を変更
  * 
  * 5.プラグインパラメーターの調整
@@ -574,9 +574,13 @@
     Bitmap.prototype.bltStand = function (source, sx, sy, sw, sh, dx, dy, dw, dh) {
         dw = dw || sw;
         dh = dh || sh;
-        this._context.globalCompositeOperation = 'source-over';
-        this._context.drawImage(source._canvas, sx, sy, sw, sh, dx, dy, dw, dh);
-        this._setDirty();
+        try {
+            this._context.globalCompositeOperation = 'source-over';
+            this._context.drawImage(source._canvas, sx, sy, sw, sh, dx, dy, dw, dh);
+            this._setDirty();
+        } catch (e) {
+            //
+        }
     };
 
 })();
