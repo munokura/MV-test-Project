@@ -1,22 +1,20 @@
 //=============================================================================
-// MNKR_AltMenuScreen3.js (ver0.0.4)
+// MNKR_AltMenuScreen3.js (ver0.0.5)
 //=============================================================================
 
 /*
  * ▼ムノクラによる変更点
  * 1.トリアコンタン氏の下記修正を取り入れました。
  *   リザーブメンバーの立ち絵が初回表示時に正しく表示されない問題の修正
- * 
  * 2.ウィンドウ枠を表示するか選択肢の追加
- * 
  * 3.アクターのメモタグ<stand_offset_x> <stand_offset_y> で
  *   立ち絵の表示位置指定機能を追加
  *   <stand_picture:ファイル名>で指定したアクター表示にのみ反映されます。
  *   通常の顔画像には反映されません。
- * 
  * 4.場所ウィンドウの幅計算を変更
- * 
- * 5.プラグインパラメーターの調整
+ * 5.パーティ人数の変化で列数を自動調整する機能を追加。
+ * 6.表示可能な人数に合わせて、レベル表示の幅を自動調整。
+ * 7.プラグインパラメーターの調整
  */
 
 //=============================================================================
@@ -29,18 +27,12 @@
 /*:ja
  * @target MV
  * @url https://raw.githubusercontent.com/munokura/MNKR-MV-plugins/master/MNKR_AltMenuScreen3.js
- * @plugindesc レイアウトの異なるメニュー画面
+ * @plugindesc メニュー画面にアクターの顔画像の代わりに立ち絵を表示できます。
  * @author 神無月サスケ, Yoji Ojima (改変:ムノクラ)
  * 
  * @help
- * このプラグインは試作中です。
- * 現在、立ち絵の位置を大きく変更すると表示できなくなる不具合があります。
- * 
- * このプラグインには、プラグインコマンドはありません。
- *
- *  AltMenuscreen との違いは以下です:
- *  - メニューそれぞれのシーンに背景ビットマップを付けることが出来ます。
- *  - アクターに立ち絵を利用します。
+ * メニュー画面にアクターの顔画像の代わりに立ち絵を表示できます。
+ * メニューそれぞれのシーンに背景画像を付けることが出来ます。
  *
  * アクターのメモに以下のように書いてください:
  * <stand_picture:ファイル名> ファイル名が、そのアクターの立ち絵になります。
@@ -49,7 +41,6 @@
  * 望ましいアクター立ち絵のサイズ：
  * 幅：3列:240px, 4列：174px
  * 高さ： コマンドウィンドウ 1行:444px 2行:408px
- *
  * 
  * アクターのメモに<stand_offset_x> <stand_offset_y> を入れると
  * 立ち絵の表示位置指定が出来ます。
@@ -64,6 +55,10 @@
  * <stand_offset_y:10>
  * ※10の部分をずらす量に指定してください。マイナスだと上に移動します。
  * 
+ * 
+ * このプラグインには、プラグインコマンドはありません。
+ * 
+ * 
  * @param displayWindow
  * @text ウィンドウ枠表示
  * @desc ウィンドウ枠を表示。デフォルト:false
@@ -74,7 +69,7 @@
  * 
  * @param bgBitmapMenu
  * @text メニュー背景
- * @desc メニュー背景にするビットマップファイルです。
+ * @desc メニュー背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -83,7 +78,7 @@
  * 
  * @param bgBitmapItem
  * @text アイテム画面背景
- * @desc アイテム画面背景にするビットマップファイルです。
+ * @desc アイテム画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -92,7 +87,7 @@
  * 
  * @param bgBitmapSkill
  * @text スキル画面背景
- * @desc スキル画面背景にするビットマップファイルです。
+ * @desc スキル画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -101,7 +96,7 @@
  * 
  * @param bgBitmapEquip
  * @text 装備画面背景
- * @desc 装備画面背景にするビットマップファイルです。
+ * @desc 装備画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -110,7 +105,7 @@
  * 
  * @param bgBitmapStatus
  * @text ステータス画面背景
- * @desc ステータス画面背景にするビットマップファイルです。
+ * @desc ステータス画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -119,7 +114,7 @@
  * 
  * @param bgBitmapOptions
  * @text オプション画面背景
- * @desc オプション画面背景にするビットマップファイルです。
+ * @desc オプション画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -128,7 +123,7 @@
  * 
  * @param bgBitmapFile
  * @text セーブ／ロード画面背景
- * @desc セーブ／ロード画面背景にするビットマップファイルです。
+ * @desc セーブ／ロード画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
  * @require 1
@@ -137,18 +132,24 @@
  * 
  * @param bgBitmapGameEnd
  * @text ゲーム終了画面背景
- * @desc ゲーム終了画面背景にするビットマップファイルです。
+ * @desc ゲーム終了画面背景にする画像ファイルです。
  * img/pictures に置いてください。
  * @default 
+ * @dir img/pictures/
+ * @type file
  * 
  * @param maxColsMenu
  * @text アクター表示最大数
- * @desc アクターを表示するウィンドウの1画面の登録最大数です。
+ * @desc アクターを表示するウィンドウの1画面の登録最大数。
+ * 0にすると、パーティ人数で自動調整
+ * @type number
  * @default 4
  * 
  * @param commandRows
  * @text コマンド行数
  * @desc コマンドウィンドウの行数です。
+ * @type number
+ * @min 1
  * @default 2
  *
  * @param isDisplayStatus
@@ -159,7 +160,7 @@
  * @off 非表示
  * @default true
  * 
- * @param display map name
+ * @param displayMapName
  * @text マップ名表示
  * @desc 画面左下にマップ名を表示するかを選びます。
  * @type boolean
@@ -167,9 +168,10 @@
  * @off 非表示
  * @default true
  * 
- * @param location string
+ * @param locationString
  * @text マップ名ラベル
  * @desc マップ名の前に付ける文字。システムカラーで描画されます。
+ * @type string
  * @default 現在地:
  * 
  * 
@@ -197,8 +199,8 @@
     var maxColsMenuWnd = Number(parameters['maxColsMenu'] || 4);
     var rowsCommandWnd = Number(parameters['commandRows'] || 2);
     var isDisplayStatus = String(parameters['isDisplayStatus']) === 'true';
-    var isDisplayMapName = String(parameters['display map name']) === 'true';
-    var locationString = parameters['location string'] || '';
+    var isDisplayMapName = String(parameters['displayMapName']) === 'true';
+    var locationString = parameters['locationString'] || '';
     var displayWindow = String(parameters['displayWindow']) === 'true';
     //
     // make transparent windows for each scene in menu.
@@ -488,7 +490,8 @@
     };
 
     Window_MenuStatus.prototype.maxCols = function () {
-        return maxColsMenuWnd;
+        var realMaxColsMenuWnd = maxColsMenuWnd === 0 ? $gameParty.members().length : maxColsMenuWnd;
+        return realMaxColsMenuWnd;
     };
 
     Window_MenuStatus.prototype.numVisibleRows = function () {
@@ -505,19 +508,6 @@
         } else {
             _Window_MenuStatus_drawItem.apply(this, arguments);
         }
-    };
-
-    Window_MenuStatus.prototype._refreshArrows = function () {
-        Window.prototype._refreshArrows.call(this);
-        var w = this._width;
-        var h = this._height;
-        var p = 24;
-        var q = p / 2;
-
-        this._downArrowSprite.rotation = 270 * Math.PI / 180;
-        this._downArrowSprite.move(w - q, h / 2);
-        this._upArrowSprite.rotation = 270 * Math.PI / 180;
-        this._upArrowSprite.move(q, h / 2);
     };
 
     Window_MenuStatus.prototype.drawItemImage = function (index) {
@@ -558,11 +548,19 @@
         var bottom = y + rect.height;
         var lineHeight = this.lineHeight();
         this.drawActorName(actor, x, y + lineHeight * 0, width);
-        this.drawActorLevel(actor, x, y + lineHeight * 1, width);
+        this.drawActorLevelWidth(actor, x, y + lineHeight * 1, width);
         this.drawActorClass(actor, x, bottom - lineHeight * 4, width);
         this.drawActorHp(actor, x, bottom - lineHeight * 3, width);
         this.drawActorMp(actor, x, bottom - lineHeight * 2, width);
         this.drawActorIcons(actor, x, bottom - lineHeight * 1, width);
+    };
+
+    Window_MenuStatus.prototype.drawActorLevelWidth = function (actor, x, y, width) {
+        width = Math.min(width, 128);
+        this.changeTextColor(this.systemColor());
+        this.drawText(TextManager.levelA, x, y, 48);
+        this.resetTextColor();
+        this.drawText(actor.level, x, y, width, 'right');
     };
 
     var _Window_MenuActor_initialize = Window_MenuActor.prototype.initialize;
