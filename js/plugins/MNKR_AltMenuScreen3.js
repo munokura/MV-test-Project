@@ -1,5 +1,5 @@
 //=============================================================================
-// MNKR_AltMenuScreen3.js (ver0.0.2)
+// MNKR_AltMenuScreen3.js (ver0.0.3)
 //=============================================================================
 
 /*
@@ -539,21 +539,7 @@
                 rect.x + (rect.width - bitmap.width) / 2;
             var dy = (bitmap.height > rect.height) ? rect.y :
                 rect.y + (rect.height - bitmap.height) / 2;
-            this.contents.blt(bitmap, sx - offX, sy - offY, w, h, dx, dy);
-            console.log('bitmap');
-            console.log(bitmap);
-            console.log('sx');
-            console.log(sx - offX);
-            console.log('sy');
-            console.log(sy - offY);
-            console.log('w');
-            console.log(w);
-            console.log('h');
-            console.log(h);
-            console.log('dx');
-            console.log(dx);
-            console.log('dy');
-            console.log(dy);
+            this.contents.bltStand(bitmap, sx - offX, sy - offY, w, h, dx, dy);
         } else { // when bitmap is not set, do the original process.
             this.drawActorFace(actor, rect.x, rect.y + lineHeight * 2.5, w, h);
         }
@@ -583,6 +569,14 @@
     Window_MenuActor.prototype.initialize = function () {
         _Window_MenuActor_initialize.call(this);
         this.y = this.fittingHeight(2);
+    };
+
+    Bitmap.prototype.bltStand = function (source, sx, sy, sw, sh, dx, dy, dw, dh) {
+        dw = dw || sw;
+        dh = dh || sh;
+        this._context.globalCompositeOperation = 'source-over';
+        this._context.drawImage(source._canvas, sx, sy, sw, sh, dx, dy, dw, dh);
+        this._setDirty();
     };
 
 })();
